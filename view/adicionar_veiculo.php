@@ -10,19 +10,19 @@
 		return false;
 	}
 	if (!isset($_POST['ano'])) {
-		echo json_encode(array('response' => 'digite o ano pf...'));
+		echo json_encode(array('response' => 'digite o ano por favor...'));
 		return false;
 	}
 	if (!isset($_POST['chassi'])) {
-		echo json_encode(array('response' => 'digite o chassi pf...'));
+		echo json_encode(array('response' => 'digite o chassi por favor...'));
 		return false;
 	}
 	if (!isset($_POST['modelo'])) {
-		echo json_encode(array('response' => 'selecione o modelo pf...'));
+		echo json_encode(array('response' => 'selecione o modelo por favor...'));
 		return false;
 	}
 	if (!isset($_POST['placa'])) {
-		echo json_encode(array('response' => 'digite a placa pf...'));
+		echo json_encode(array('response' => 'digite a placa por favor...'));
 		return false;
 	}
 

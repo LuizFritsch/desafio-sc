@@ -98,11 +98,11 @@
 		        type: "POST",
 		        data: $( "form" ).serialize(),
 		        success: function(response) {
-		        	alert(response);
 		        	if (response!=' sucesso') {
+		        		var r = JSON.parse(response);
 		        		Swal.fire(
 								'Erro!',
-								'Nao foi possivel adicionar o veiculo! \n'+response+'',
+								"Nao foi possivel adicionar o veiculo! Erro: \r\n"+r.response+"\r\n",
 								'error'
 								).then(function() {
 									return false;
@@ -110,7 +110,7 @@
 		        	}else{
 		        		Swal.fire(
 						'Sucesso!',
-						'O veiculo foi adicionado com sucesso! '+response+'',
+						'O veiculo foi adicionado com sucesso!',
 						'success'
 							).then(function() {
 								window.location.href= "index.php";

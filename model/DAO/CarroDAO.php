@@ -48,6 +48,13 @@ class CarroDAO{
         return $SQL->fetch_row()[0];
     }
 
+    public function getCaracteristicaByID($id){
+        $cona = new Conexao();
+        $con=$cona->abreConexao();
+        $SQL=$con->query("SELECT nome FROM caracteristicas WHERE id='$id'");
+        return $SQL->fetch_row()[0];
+    }
+
     public function selectTodosCarros(){
         try{
             $cona = new Conexao();
@@ -57,13 +64,12 @@ class CarroDAO{
             while($registros = $SQL->fetch_array()){
                 $idCarro=$registros["id"];
                 $idModelo=$registros["fk_modelo"];
-                $SQLcarac=$con->query("SELECT fk_caracteristica as fkid FROM caracteristicas_carro WHERE fk_carro='$idCarro'");
+                $SQLcarac=$con->query("SELECT nome FROM caracteristicas INNER JOIN caracteristicas_carro ON caracteristicas_carro.fk_caracteristica=caracteristicas.id AND caracteristicas_carro.fk_carro='$idCarro'");
+                $caracteristicas="";
                 while($registrosCaracteristicas = $SQLcarac->fetch_array()){
-                    $caracteristicas=$registrosCaracteristicas["fkid"];
+                    $caracteristicas=$caracteristicas." | ".$registrosCaracteristicas["nome"];
                 }
-
                 $sqlMarca=$con->query("SELECT marca.nome as marn, modelo.nome as modn FROM modelo INNER JOIN marca WHERE modelo.id='$idModelo' AND modelo.fk_marca=marca.id");
-
                 $marcaModelo = $sqlMarca->fetch_row();
                 $marca=$marcaModelo[0];
                 $modelo=$marcaModelo[1];
@@ -77,7 +83,7 @@ class CarroDAO{
             return false;
         }
     }
-
+    
     public function selectMarcaModelo(){
         $cona = new Conexao();
         $con=$cona->abreConexao();
