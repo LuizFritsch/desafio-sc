@@ -1,8 +1,8 @@
 <?php include("../model/Carro.php")?>
 <?php
 include ("conexao.php");
-class CarroDAO{
 
+class CarroDAO{
 
     public function InsertCarro(Carro $carro){
 
@@ -19,6 +19,17 @@ class CarroDAO{
 
         if ($SQL->affected_rows > 0)
             return true;
+    }
+
+    public function deleteVeiculo($id){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            echo '$id';
+            $sqlDelete=$con->query("DELETE FROM carro WHERE id='$id'");
+        } catch (Exception $e) {
+            throw new Exception("Error Processing Request", 1);
+        }
     }
 
     public function selectTodosCarros(){
@@ -60,23 +71,18 @@ class CarroDAO{
         }       
         return $listaMarca;
     }
-/**
-     public function selectModelos(){
-        $cona = new Conexao();
-        $con=$cona->abreConexao();
-        $SQL=$con->query("SELECT * FROM modelo");
-        while($registros = $SQL->fetch_array()){
-            $listaMarca[]="<option value='".$registros["id"]."'>".$registros["nome"]."</option>";
-        }       
-        return $listaMarca;
-    }
-**/
+
     public function selectModelos(){
         $cona = new Conexao();
         $con=$cona->abreConexao();
         $SQL=$con->query("SELECT * FROM modelo");
+        $i=0;
         while($registros = $SQL->fetch_array()){
+            if ($i==0) {
+                $listaModelos[]="<option selected value='".$registros["id"]."'>".$registros["nome"]."</option>";
+            }
             $listaModelos[]="<option value='".$registros["id"]."'>".$registros["nome"]."</option>";
+            $i++;
         }       
         return $listaModelos;
     }
@@ -87,29 +93,14 @@ class CarroDAO{
         $SQL=$con->query("SELECT * FROM caracteristicas");
         while($registros = $SQL->fetch_array()){
             $listaCaracteristicas[]="<div class='form-check'>
-                                        <input type='checkbox' class='form-check-input' id='check".$registros["id"]."'>
+                                        <input type='checkbox' class='form-check-input' name='checkCaracteristicas[]' id='check".$registros["id"]."'>
                                         <label class='form-check-label' for='check".$registros["id"]."'>".$registros["nome"]."</label>
                                     </div>";
         }
         return $listaCaracteristicas;
     }
 
-    // Segue a mesma idéia dos outros métodos, claro com outra SQL, de acordo com que o método faz.
-    public function DeleteContasReceber(ContasReceber $carro)
-    {
-        global $con;
-        $SQL = $con->prepare("DELETE FROM contasreceber WHERE id_contasreceber = ?");
-        $SQL->bind_param("i", $P1);
-        $P1 = $carro->getId_contasreceber();;
-        $SQL->execute();
-
-        if($SQL->affected_rows > 0)
-            return true;
-    }
-
-    // Segue a mesma idéia dos outros métodos, claro com outra SQL, de acordo com que o método faz.
-    public function UpdateContasReceber(ContasReceber $carro)
-    {
+    public function UpdateContasReceber(ContasReceber $carro){
         global $con;
         $SQL = $con->prepare("UPDATE contasreceber SET documento_contasreceber = ?, valor_contasreceber = ?, cliente_contasreceber = ?, status_contasreceber = ?,  vencimento_contasreceber = ? WHERE id_contasreceber = ?");
         $SQL->bind_param("sdissi", $P1, $P2, $P3, $P4, $P5, $P6);

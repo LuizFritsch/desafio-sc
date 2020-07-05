@@ -10,8 +10,9 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?php include(__DIR__.'/./template/head.php')?>
 	<title>Gerenciar Veiculos</title>
-	<link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 	<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+
 </head>
 <body>
 	<div id="menu">
@@ -22,8 +23,16 @@
 	<main>
 		<div class="container-fluid">
 			<div class="content">
+				<div class="text-center">
+					<hr>
+					<h1>Veiculos</h1>
+					<hr>
+					<a href="addVeiculo.php" class="btn btn-success btn-lg btn-block">adicionar veiculo</a>
+					<hr>
+				</div>
+
 				<div class="table-responsive">
-					<table id="tabelaCarros" class="display">
+					<table id="tabelaCarros" class="display table table-striped">
 						<caption>Tabela de veiculos</caption>
 						<thead>
 							<tr>
@@ -34,8 +43,8 @@
 								<th scope="col">Ano</th>
 								<th scope="col">Placa</th>
 								<th scope="col">Caracteristicas</th>
-								<th scope="col"><!--Editar--></th>
-								<th scope="col"><!--Excluir--></th>
+								<th scope="col">Editar</th>
+								<th scope="col">Excluir</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -52,11 +61,10 @@
 														<td>".$carros->getMarca()."</td>
 														<td>".$carros->getModelo()."</td>
 														<td>".$carros->getAno()."</td>
-														<td>".$carros->getId()."</td>
-														<td>".$carros->getId()."</td>
+														<td>".$carros->getPlaca()."</td>
 														<td>".$carros->getCaracteristicas()."</td>
 														<td><button class='btn btn-warning'>Editar</button></td>
-														<td><button class='btn btn-danger'>Editar</button></td>
+														<td><a type='button' class='btn btn-danger' onclick='excluirVeiculo(".$carros->getId().")'>Excluir</a></td>
 													</tr>
 												";
 										}
@@ -66,12 +74,15 @@
 						</tbody>
 					</table>
 				</div>
+				
+				<hr>
+
 			</div>
 		</div>
 	</main>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$('#tabelaCarros').dataTable(filter: true);
+			$('#tabelaCarros').dataTable();
 		});
 	</script>
 	<script type="text/javascript">
@@ -88,7 +99,7 @@
 			        "processing":     "Processando...",
 			        "search":         "Buscar:",
 				  	"searchPlaceholder": "Filtre por qualquer coisa aqui...",
-			        "zeroRecords":    "Não há nenhum evento disponivel",
+			        "zeroRecords":    "Não há nenhum veiculo disponivel",
 				    "paginate": {
 				      "first":      "Primeira",
 	            	  "last":       "Última",
@@ -108,6 +119,56 @@
         		}
         
 			} );
+		</script>
+
+		<script type="text/javascript">
+			function excluirVeiculo(idVeiculo){
+				const swalWithBootstrapButtons = Swal.mixin({
+				  customClass: {
+				    confirmButton: 'btn btn-success',
+				    cancelButton: 'btn btn-danger'
+				  },
+				  buttonsStyling: false
+				})
+
+				swalWithBootstrapButtons.fire({
+				  title: 'Tem certeza que deseja excluir este veiculo?',
+				  text: "Voce nao sera capaz de reverter esta decisao!",
+				  icon: 'warning',
+				  showCancelButton: true,
+				  confirmButtonText: 'Sim, eu desejo excluir!',
+				  cancelButtonText: 'Nao, eu nao desejo mais excluir!',
+				  reverseButtons: true
+				}).then((result) => {
+				  if (result.value) {
+				    $.ajax({
+	                    url:'excluir_veiculo.php',
+	                    method:'POST',
+	                    data:{
+	                       idVeiculo:idVeiculo
+	                    },
+	                    success:function(response){
+	                        Swal.fire(
+								'Sucesso!',
+								'O veiculo '+response+' foi excluido com sucesso!',
+								'success'
+							).then(function() {
+								location.reload();
+							});
+	                    }
+	                });
+				  } else if (
+				    /* Read more about handling dismissals below */
+				    result.dismiss === Swal.DismissReason.cancel
+				  ) {
+				    swalWithBootstrapButtons.fire(
+				      'Cancelado',
+				      'Seu veiculo nao foi excluido e esta seguro :)',
+				      'error'
+				    )
+				  }
+				})
+			}
 		</script>
 </body>
 </html>

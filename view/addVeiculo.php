@@ -92,7 +92,7 @@
 					</div>
 				</div>
 				<br>
-				<button type="submit" class="btn btn-success btn-lg btn-block">adicionar veiculo</button>
+				<button type="submit" id="sub" class="btn btn-success btn-lg btn-block">adicionar veiculo</button>
 			</form>
 		</div>
 	</main>
@@ -180,11 +180,66 @@
 	</script>
 
 	<script type="text/javascript">
-		function mudaModelos() {
-			var idMarca=$('#marca').val();
-			fo
-			alert(idMarca);
-		}
+		function adicionaVeiculo(){
+			var chassi=$('#chassi').val();
+			var ano=$('#ano').val();
+			var modelo=$('#modelo').val();
+			var placa=$('#placa').val();
+			var caracteristicas=$("input[type=checkbox]:checked").val();
+			alert(chassi+' ?? '+ano+' ?? '+modelo+' ?? '+placa+' ?? '+caracteristicas);
+			swal({
+			     title: 'Remover foto de perfil?',
+			      showCancelButton: true,
+			      confirmButtonText: 'Sim, pode remover!',
+			      cancelButtonText: 'Cancelar',
+			      text: 'Essa ação não poderá ser desfeita.',
+			      type: 'warning',
+			      confirmButtonColor: '#F54400',
+			      showLoaderOnConfirm: true,
+			      preConfirm: ()=>{
+			            $.ajax({
+			                url: 'adicionar_veiculo.php',
+			                method: 'POST',
+			                data:{
+								chassi:chassi,
+								ano:ano,
+								modelo:modelo,
+								placa:placa
+								//caracteristicas:caracteristicas
+							},
+			                success: function(resp)
+			                      {
+			                        if(resp) return "ok",
+			                          swal(
+			                            'Foto Removida!',
+			                            'Sua foto de perfil foi removida com sucesso.',
+			                            'success'
+			                          ).then(function() {
+			                            location.href = 'perfil.php';
+			                          });
+			                      }
+			            })
+			          }
+			    })
+
+		};
+	</script>
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function () {
+		    $('#sub').click(function() {
+		      checked = $("input[type=checkbox]:checked").length;
+		      //nmrChassi = $("#chassi").val();
+		      nmrChassi = $("#chassi").length;
+		      modelo = $("#modelo").val();
+		      if(checked<2) {
+		      	Swal.fire("Erro", "vc precisa selecionar ao menos duas caracteristicas...", "error");
+		      	return false;
+		      }
+		      else{
+		      	adicionaVeiculo();
+		      }
+		    });
+		});
 	</script>
 
 </body>
