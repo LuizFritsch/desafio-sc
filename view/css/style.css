@@ -1,0 +1,19 @@
+body {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+html{
+    scroll-behavior: smooth;
+}
+
+footer {
+    position: absolute;
+    border: 0;
+    width:100%;
+    font-family: 'Montserrat', sans-serif;
+
+}
+
+.content{
+    padding-right: 50px;
+}
