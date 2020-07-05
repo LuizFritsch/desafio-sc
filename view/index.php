@@ -21,17 +21,17 @@
 		?>
 	</div>
 	<main>
-		<div class="container-fluid">
+		<div class="container-fluid" style="padding: 10%">
 			<div class="content">
 				<div class="text-center">
 					<hr>
 					<h1>Veiculos</h1>
 					<hr>
-					<a href="addVeiculo.php" class="btn btn-success btn-lg btn-block">adicionar veiculo</a>
+					<a href="add_veiculo.php" class="btn btn-success btn-lg btn-block">adicionar veiculo</a>
 					<hr>
 				</div>
 
-				<div class="table-responsive">
+				<div class="table-responsive" style="margin-top: 10%">
 					<table id="tabelaCarros" class="display table table-striped">
 						<caption>Tabela de veiculos</caption>
 						<thead>
@@ -48,29 +48,23 @@
 							</tr>
 						</thead>
 						<tbody>
-							
 								<?php
-									if ($listaCarros==null) {
-										echo "<h1>Nao ha nenhum veiculo na nossa base de dados</h1>";
-									}else{
-										foreach ($listaCarros as $carros) {
-											echo "
-													<tr>
-														<th scope='row'>".$carros->getId()."</th>
-														<td>".$carros->getNmrChassi()."</td>
-														<td>".$carros->getMarca()."</td>
-														<td>".$carros->getModelo()."</td>
-														<td>".$carros->getAno()."</td>
-														<td>".$carros->getPlaca()."</td>
-														<td>".$carros->getCaracteristicas()."</td>
-														<td><button class='btn btn-warning'>Editar</button></td>
-														<td><a type='button' class='btn btn-danger' onclick='excluirVeiculo(".$carros->getId().")'>Excluir</a></td>
-													</tr>
-												";
-										}
+									foreach ($listaCarros as $carros) {
+										echo "
+												<tr>
+													<th scope='row'>".$carros->getId()."</th>
+													<td>".$carros->getNmrChassi()."</td>
+													<td>".$carros->getMarca()."</td>
+													<td>".$carros->getModelo()."</td>
+													<td>".$carros->getAno()."</td>
+													<td>".$carros->getPlaca()."</td>
+													<td>".$carros->getCaracteristicas()."</td>
+													<td><button class='btn btn-warning'>Editar</button></td>
+													<td><a type='button' class='btn btn-danger' onclick='excluirVeiculo(".$carros->getId().")'>Excluir</a></td>
+												</tr>
+											";
 									}
-								?>
-							
+								?>							
 						</tbody>
 					</table>
 				</div>
@@ -150,7 +144,7 @@
 	                    success:function(response){
 	                        Swal.fire(
 								'Sucesso!',
-								'O veiculo '+response+' foi excluido com sucesso!',
+								'O veiculo foi excluido com sucesso!',
 								'success'
 							).then(function() {
 								location.reload();

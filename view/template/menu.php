@@ -10,7 +10,7 @@
         <a class="nav-link" href="index.php"><i class="fas fa-tasks"></i> Gerenciar veiculos <span class="sr-only">(página atual)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../view/addVeiculo.php"><i class="fas fa-plus"></i> Adicionar veiculo</a>
+        <a class="nav-link" href="../view/add_veiculo.php"><i class="fas fa-plus"></i> Adicionar veiculo</a>
       </li>
     </ul>
   </div>

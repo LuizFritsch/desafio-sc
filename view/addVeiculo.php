@@ -4,6 +4,7 @@
 	$listaMarcas=$co->selectMarca();
 	$listaCaracteristicas=$co->selectCaracteristicas();
 	$listaModelos=$co->selectModelos();
+	$listaMarcaModelos=$co->selectMarcaModelo();
 ?>
 <!DOCTYPE html>
 <html>
@@ -11,8 +12,13 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?php include(__DIR__.'/./template/head.php')?>
-	<title></title>
-	<link rel="stylesheet" href="">
+	<title>Adicionar veiculo</title>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+	<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<link href="vendor/select2/dist/css/select2.min.css" rel="stylesheet" />
+<script src="vendor/select2/dist/js/select2.min.js"></script>
 </head>
 <body>
 	<div id="menu">
@@ -31,44 +37,38 @@
 			</div>
 			<small class="form-text text-muted">Este é o seu progresso</small>
 			<hr>
-			<form method="POST" id="input-progress" role="form" action="">
+			<form method="POST" id="input-progress" role="form" onsubmit="adicionaVeiculo()">
 				<div class="form-group">
 					<div class="form-row">
-						<div class="col-md-6">
-							<h6>Id veiculo*</h6>
-							<input type="text" class="form-control" pattern="[0-9]*" id="id" name="id" placeholder="Digite o id do veiculo..." required="">
-						</div>
-						<div class="col-md-6">
+						<div class="col">
 							<h6>nmr_chassi*</h6>
 							<input type="text" maxlength="19" minlength="19" class="form-control" placeholder="Digite o chassi do veiculo..." id="chassi" name="chassi" required="">
 						</div>
 					</div>
 				</div>
-				<div class="form-group">
-					<div class="form-row">
-						<div class="col-md-6">
-							<h6>Marca*</h6>
-							<select class="form-control" readonly  id="marca" name="marca">
+
+				<div class="table-responsive text-center">
+					<table id="tabelaMarcaModelos" class="display table table-striped">
+						<caption>Tabela de veiculos</caption>
+						<thead>
+							<tr>
+								<th scope="col">Marca</th>
+								<th scope="col">Modelo</th>
+								<th scope="col">Selecionar</th>
+							</tr>
+						</thead>
+						<tbody>
 								<?php
-									foreach ($listaMarcas as &$li) {
-										echo $li;
-									}
+									foreach ($listaMarcaModelos as $modelos) {
+										echo "<tr>";
+										echo $modelos;
+										echo "</tr>";
+									}	
 								?>
-							</select>
-						</div>
-						
-						<div class="col-md-6">
-							<h6>Modelo*</h6>
-							<select class="form-control" id="modelo" name="modelo" required="">
-								<?php
-									foreach ($listaModelos as &$li) {
-										echo $li;
-									}
-								?>
-							</select>
-						</div>
-					</div>
+						</tbody>
+					</table>
 				</div>
+				<br>
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
@@ -84,19 +84,27 @@
 				<div class="form-row">
 					<div class="col-md-6">
 						<h6>Caracteristicas*</h6>
-						<?php
-							foreach ($listaCaracteristicas as &$l) {
-								echo $l;
-							}
-						?>
+							<select class="js-example-basic-multiple" required="" name="caracteristicas[]" id="carac" multiple="multiple">
+								<?php
+									foreach ($listaCaracteristicas as &$l) {
+										echo $l;
+									}
+								?>
+							</select>
 					</div>
 				</div>
+
 				<br>
 				<button type="submit" id="sub" class="btn btn-success btn-lg btn-block">adicionar veiculo</button>
 			</form>
 		</div>
 	</main>
 
+	<script type="text/javascript" charset="utf-8" async defer>
+		$(document).ready(function() {
+		    $('.js-example-basic-multiple').select2();
+		});
+	</script>
 
 	<script type="text/javascript" charset="utf-8" async defer>
 		$(document).ready(function(){
@@ -178,69 +186,113 @@
 				});
 			});
 	</script>
-
+	
 	<script type="text/javascript">
 		function adicionaVeiculo(){
 			var chassi=$('#chassi').val();
 			var ano=$('#ano').val();
-			var modelo=$('#modelo').val();
+			var modelo=$('input[type=radio][name=modelo]:checked').val();
 			var placa=$('#placa').val();
-			var caracteristicas=$("input[type=checkbox]:checked").val();
-			alert(chassi+' ?? '+ano+' ?? '+modelo+' ?? '+placa+' ?? '+caracteristicas);
-			swal({
-			     title: 'Remover foto de perfil?',
-			      showCancelButton: true,
-			      confirmButtonText: 'Sim, pode remover!',
-			      cancelButtonText: 'Cancelar',
-			      text: 'Essa ação não poderá ser desfeita.',
-			      type: 'warning',
-			      confirmButtonColor: '#F54400',
-			      showLoaderOnConfirm: true,
-			      preConfirm: ()=>{
-			            $.ajax({
-			                url: 'adicionar_veiculo.php',
-			                method: 'POST',
-			                data:{
-								chassi:chassi,
-								ano:ano,
-								modelo:modelo,
-								placa:placa
-								//caracteristicas:caracteristicas
-							},
-			                success: function(resp)
-			                      {
-			                        if(resp) return "ok",
-			                          swal(
-			                            'Foto Removida!',
-			                            'Sua foto de perfil foi removida com sucesso.',
-			                            'success'
-			                          ).then(function() {
-			                            location.href = 'perfil.php';
-			                          });
-			                      }
-			            })
-			          }
-			    })
-
-		};
+			//var caracteristicas=$("input[type=checkbox]:checked");
+			checked = $("option:selected").length;
+			var caract;
+			alert(placa);
+			$("#carac").each(function(){
+		    	caract.push($(this).val());
+			});
+			alert(toString(caract));
+		    if(checked<2) {
+		     	Swal.fire("Erro", "vc precisa selecionar ao menos duas caracteristicas...", "error");
+		    }else if (!chassi || !ano || !modelo || !placa) {
+				Swal.fire(
+					'Erro!',
+					'Nao foi possivel adicionar este veiculo, ha campos em branco!',
+					'error'
+					);
+			}else{
+				alert("SADASDSADASDASD");
+				$.ajax({
+					url:'adicionar_veiculo.php',
+					method:'POST',
+					data:{
+						chassi:chassi,
+						ano:ano,
+						modelo:modelo,
+						placa:placa
+					},
+					success:function(response){
+						if (!response){
+							Swal.fire(
+								'Erro!',
+								'Nao foi possivel adicionar o veiculo! '+response+'',
+								'error'
+								).then(function() {
+									location.reload();
+								});
+						}
+						Swal.fire(
+							'Sucesso!',
+							'O veiculo foi adicionado com sucesso!',
+							'success'
+							).then(function() {
+								window.location.href= "index.php";
+							});
+						},
+						error:function(response) {
+							Swal.fire(
+								'Erro!',
+								'Nao foi possivel adicionar o veiculo! '+response+'',
+								'error'
+								).then(function() {
+									location.reload();
+								});
+							}
+						});
+			}
+			return false;
+		}
 	</script>
-	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function () {
-		    $('#sub').click(function() {
-		      checked = $("input[type=checkbox]:checked").length;
-		      //nmrChassi = $("#chassi").val();
-		      nmrChassi = $("#chassi").length;
-		      modelo = $("#modelo").val();
-		      if(checked<2) {
-		      	Swal.fire("Erro", "vc precisa selecionar ao menos duas caracteristicas...", "error");
-		      	return false;
-		      }
-		      else{
-		      	adicionaVeiculo();
-		      }
-		    });
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#tabelaMarcaModelos').dataTable();
 		});
 	</script>
+	<script type="text/javascript">
+			$('#tabelaMarcaModelos').dataTable( {
+				"language": {
+				  	"emptyTable": "Não há nenhum veiculo disponivel",
+				  	"info": "Mostrando _START_ de _END_ de um total de _TOTAL_ veiculos",
+				  	"infoEmpty": "Mostrando 0 de um total de 0 entradas",
+				  	"infoFiltered":   "(filtrado de um total de _MAX_ total veiculos)",
+			        "infoPostFix":    "",
+			        "thousands":      ".",
+			        "lengthMenu":     "Mostrar _MENU_ veiculos",
+				  	"loadingRecords": "Carregando...",
+			        "processing":     "Processando...",
+			        "search":         "Buscar:",
+				  	"searchPlaceholder": "Filtre por qualquer coisa aqui...",
+			        "zeroRecords":    "Não há nenhum veiculo disponivel",
+				    "paginate": {
+				      "first":      "Primeira",
+	            	  "last":       "Última",
+				      "previous": "Anterior",
+				      "next": "Próximo"
+			    }
+			  },
+			  	"Search": {
+            		"addClass": 'form-control input-lg col-xs-12'
+        		},
+        		"fnDrawCallback":function(){
+		            $("input[type='search']").attr("id", "searchBox");
+		            $('#dialPlanListTable').css('cssText', "margin-top: 0px !important;");
+		            $("select[name='dialPlanListTable_length'], #searchBox").removeClass("input-sm");
+		            $('#searchBox').css("width", "300px").focus();
+		            $('#dialPlanListTable_filter').removeClass('dataTables_filter');
+        		}
+        
+			} );
+		</script>
 
 </body>
 

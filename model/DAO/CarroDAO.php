@@ -4,32 +4,48 @@ include ("conexao.php");
 
 class CarroDAO{
 
-    public function InsertCarro(Carro $carro){
+    public function InsertCarro($chassi,$modelo,$ano,$placa,$caract){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
 
-        $cona = new Conexao();
-        $con=$cona->abreConexao();
+            $id=null;
+            $modelo*=1;
+            $ano*=1;
+            $SQL = "INSERT INTO carro (id,nmr_chassi,fk_modelo,ano,placa) VALUES (null, '$chassi', $modelo, $ano, '$placa')";
 
+            $con->query($SQL);
 
-        $SQL = $con->prepare("INSERT INTO carro (id,nmr_chassi,fk_modelo,ano,placa) VALUES (?, ?, ?, ?, ?)") or die ($mysqli->error);
+            //$stmt->execute();
 
-        $SQL->bind_param("isiis", null, $carro->getNmrChassi(), $carro->getModelo(),  $carro->getAno(), $carro->getPlaca());
-
-        $SQL->execute();
-
-
-        if ($SQL->affected_rows > 0)
-            return true;
+            $sqlIDCARRO=$con->query("SELECT MAX(id) FROM carro");
+            $idCARRO=$sqlIDCARRO->fetch_row()[0];
+            foreach ($caract as $carac) {
+                $sqlCaracteristicas="INSERT INTO caracteristicas_carro VALUES ($carac,$idCARRO)";
+                $con->query($sqlCaracteristicas);
+            }
+            echo "sucesso";
+        } catch (Exception $e) {
+            echo $e;
+        }
+        
     }
 
     public function deleteVeiculo($id){
         try {
             $cona = new Conexao();
             $con=$cona->abreConexao();
-            echo '$id';
             $sqlDelete=$con->query("DELETE FROM carro WHERE id='$id'");
         } catch (Exception $e) {
             throw new Exception("Error Processing Request", 1);
         }
+    }
+
+    public function selectMarcaByModelo($modelo){
+        $cona = new Conexao();
+        $con=$cona->abreConexao();
+        $SQL=$con->query("SELECT fk_marca FROM modelo WHERE id='$modelo'");
+        return $SQL->fetch_row()[0];
     }
 
     public function selectTodosCarros(){
@@ -57,9 +73,38 @@ class CarroDAO{
             }   
             return $listaCarros;
         }catch(Exception $e){
-            return $e;
+            echo json_encode(array('response' => 'ocorreu algum erro ao inserir :/...'));
+            return false;
         }
     }
+
+    public function selectMarcaModelo(){
+        $cona = new Conexao();
+        $con=$cona->abreConexao();
+        $SQL=$con->query("SELECT modelo.id as mid,modelo.nome as modn,marca.nome as marn FROM modelo INNER JOIN marca ON modelo.fk_marca=marca.id");
+        $i=0;
+        while($registros = $SQL->fetch_array()){
+            if ($i==0) {
+               $listaMarca[]=" <th scope='row'>".$registros["marn"]."</th>
+                            <td>".$registros["modn"]."</td>
+                            <td>
+                                <input class='form-check-input' type='radio' name='modelo' id='inlineCheckbox".$registros["mid"]."' value='".$registros["mid"]." required'>
+                            </td>
+                            
+                            ";
+            }else{
+                $listaMarca[]=" <th scope='row'>".$registros["marn"]."</th>
+                                <td>".$registros["modn"]."</td>
+                                <td>
+                                    <input class='form-check-input' type='radio' name='modelo' id='inlineCheckbox".$registros["mid"]."' value='".$registros["mid"]."'>
+                                </td>
+                            ";
+                        }
+                        $i++;
+                }       
+        return $listaMarca;
+    }
+
 
     public function selectMarca(){
         $cona = new Conexao();
@@ -92,10 +137,7 @@ class CarroDAO{
         $con=$cona->abreConexao();
         $SQL=$con->query("SELECT * FROM caracteristicas");
         while($registros = $SQL->fetch_array()){
-            $listaCaracteristicas[]="<div class='form-check'>
-                                        <input type='checkbox' class='form-check-input' name='checkCaracteristicas[]' id='check".$registros["id"]."'>
-                                        <label class='form-check-label' for='check".$registros["id"]."'>".$registros["nome"]."</label>
-                                    </div>";
+            $listaCaracteristicas[]="<option value='".$registros["id"]."'>".$registros["nome"]."</option>";
         }
         return $listaCaracteristicas;
     }
