@@ -1,19 +1,31 @@
 <?php include("../model/DAO/CarroDAO.php")?>
-<?php
-	$co=new CarroDAO();	
-	$listaCaracteristicas=$co->selectCaracteristicas();
-	$listaMarcaModelos=$co->selectMarcaModelo();
-?>
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?php include(__DIR__.'/./template/head.php')?>
-	<title>Adicionar veiculo</title>
+	<title>Editar veiculo</title>
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 	<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
-
+	<?php 
+		if (!isset($_GET['idVeiculo'])) {
+		echo "<script>Swal.fire(
+				'Erro!',
+				'Este veiculo nao foi encontrado!',
+				'error'
+				).then(function() {
+					window.location.href= './index.php';
+			});</script>";
+		}else{
+			$co=new CarroDAO();	
+			$listaCaracteristicas=$co->selectCaracteristicasUpdate($_GET['idVeiculo']);
+			$listaMarcaModelos=$co->selectMarcaModeloUpdate($_GET['idVeiculo']);
+			$chassi=$co->getNmrChassiById($_GET['idVeiculo']);
+			$ano=$co->getAnoById($_GET['idVeiculo']);
+			$placa=$co->getPlacaById($_GET['idVeiculo']);
+		}
+	?>
 </head>
 <body>
 	<div id="menu">
@@ -24,9 +36,10 @@
 	<main>
 		<div class="content-fluid" style="padding: 10%">
 			<div class="text-center">
-				<h1>Adicionar veiculo</h1>
+				<h1>Editar veiculo</h1>
 			</div>
-			<form  method="post" name="frmveiculo" id="frmveiculo">
+			<form method="POST" name="frmveiculo" id="frmveiculo">
+				<input type="hidden" name="idVeiculo" value="<?php echo $_GET['idVeiculo']?>">
 				<div style="padding-top: 10%" class="table-responsive text-center">
 					<hr>
 					<h4>Selecione o modelo....</h4>
@@ -43,10 +56,11 @@
 							<?php
 								foreach ($listaMarcaModelos as $modelos) {
 									echo "<tr>";
-									echo $modelos;
+									echo $modelos;									
 									echo "</tr>";
-								}	
+								}
 							?>
+
 						</tbody>
 					</table>
 					<hr>
@@ -57,18 +71,18 @@
 					<div class="form-row">
 						<div class="col">
 							<h6>Numero do chassi*</h6>
-							<input type="text" maxlength="17" minlength="17" class="form-control" placeholder="Digite o chassi do veiculo..." id="chassi" name="chassi" required="">
+							<input type="text" maxlength="17" minlength="17" class="form-control" value="<?php echo $chassi; ?>" id="chassi" name="chassi" required="">
 						</div>
 					</div>
 					<div class="form-group">
 						<div class="form-row">
 							<div class="col-md-6">
 								<h6>Ano*</h6>
-								<input type="text" maxlength="4" minlength="4" class="form-control" pattern="[0-9]*" id="ano" name="ano" placeholder="Digite o ano do veiculo..." required="">
+								<input type="text" maxlength="4" minlength="4" class="form-control" pattern="[0-9]*" id="ano" name="ano" value="<?php echo $ano; ?>" required="">
 							</div>
 							<div class="col-md-6">
 								<h6>Placa</h6>
-								<input type="text" maxlength="7" minlength="7" class="form-control" placeholder="Digite a placa do veiculo..." id="placa" name="placa" required="">
+								<input type="text" maxlength="7" minlength="7" class="form-control" value="<?php echo $placa; ?>" id="placa" name="placa" required="">
 							</div>
 						</div>
 					</div>
@@ -80,12 +94,13 @@
 										echo $carac;
 									}
 								?>
+								option
 							</select>
 						</div>
 					</div>
 				</div>
 				<hr>
-				<button class="btn btn-success btn-lg btn-block" id="btSelecionar" name="btSelecionar">Adicionar</button>
+				<button class="btn btn-success btn-lg btn-block" id="btSelecionar" name="btSelecionar">Editar</button>
 			</form>
 		</div>
 	</main>
@@ -94,7 +109,7 @@
 			event.preventDefault();
 			
 		    $.ajax({type: "POST",
-		        url: "adicionar_veiculo.php",
+		        url: "editar_veiculo.php",
 		        type: "POST",
 		        data: $( "form" ).serialize(),
 		        success: function(response) {
@@ -102,7 +117,7 @@
 		        		var r = JSON.parse(response);
 		        		Swal.fire(
 								'Erro!',
-								"Nao foi possivel adicionar o veiculo! Erro: "+r.response+"",
+								"Nao foi possivel editar o veiculo! Erro: "+r.response+"",
 								'error'
 								).then(function() {
 									return false;
@@ -121,9 +136,7 @@
 		            console.log(textStatus, jqXHR);
 		        }
 		    });
-		});
-
-	</script>
+		});</script>
 
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function () {
@@ -179,8 +192,7 @@
 				        }
 				    }
 				});
-			});
-	</script>
+			});</script>
 
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function() {
@@ -219,6 +231,8 @@
 		            $('#dialPlanListTable_filter').removeClass('dataTables_filter');
         		}
         
-			} );</script>
+			} );
+
+		</script>
 </body>
 </html>

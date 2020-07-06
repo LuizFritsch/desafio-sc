@@ -31,13 +31,46 @@ class CarroDAO{
         
     }
 
+    public function getPlacaById($idVeiculo){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            $SQL=$con->query("SELECT placa FROM carro WHERE id='$idVeiculo'");
+            return $SQL->fetch_row()[0];
+        } catch (Exception $e) {
+            echo $e;
+        }
+    }
+
+    public function getAnoById($idVeiculo){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            $SQL=$con->query("SELECT ano FROM carro WHERE id='$idVeiculo'");
+            return $SQL->fetch_row()[0];
+        } catch (Exception $e) {
+            echo $e;
+        }
+    }
+
+    public function getNmrChassiById($idVeiculo){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            $SQL=$con->query("SELECT nmr_chassi FROM carro WHERE id='$idVeiculo'");
+            return $SQL->fetch_row()[0];
+        } catch (Exception $e) {
+            echo $e;
+        }
+    }
+
     public function deleteVeiculo($id){
         try {
             $cona = new Conexao();
             $con=$cona->abreConexao();
             $sqlDelete=$con->query("DELETE FROM carro WHERE id='$id'");
         } catch (Exception $e) {
-            throw new Exception("Error Processing Request", 1);
+            echo $e;
         }
     }
 
@@ -83,7 +116,48 @@ class CarroDAO{
             return false;
         }
     }
-    
+
+    public function selectMarcaModeloUpdate($idVeiculo){
+        $cona = new Conexao();
+        $con=$cona->abreConexao();
+        $SQLveiculoUpdate=$con->query("SELECT fk_modelo FROM carro WHERE id='$idVeiculo'");
+        $idModeloVeiculo=$SQLveiculoUpdate->fetch_row()[0];
+        $SQL=$con->query("SELECT modelo.id as mid,modelo.nome as modn,marca.nome as marn FROM modelo INNER JOIN marca ON modelo.fk_marca=marca.id");
+        $i=0;
+        while($registros = $SQL->fetch_array()){
+            if ($registros["mid"]==$idModeloVeiculo) {
+               $listaMarca[]=" <th scope='row'>".$registros["marn"]."</th>
+                                <td>".$registros["modn"]."</td>
+                                <td>
+                                    <input checked class='form-check-input' type='radio' name='modelo' id='inlineCheckbox".$registros["mid"]."' value='".$registros["mid"]." required'>
+                                </td>
+                                
+                                ";
+            }else{
+                if ($i==0) {
+                    $listaMarca[]=" <th scope='row'>".$registros["marn"]."</th>
+                                <td>".$registros["modn"]."</td>
+                                <td>
+                                    <input class='form-check-input' type='radio' name='modelo' id='inlineCheckbox".$registros["mid"]."' value='".$registros["mid"]." required'>
+                                </td>
+                                
+                                ";
+                }else{
+                    $listaMarca[]=" <th scope='row'>".$registros["marn"]."</th>
+                                    <td>".$registros["modn"]."</td>
+                                    <td>
+                                        <input class='form-check-input' type='radio' name='modelo' id='inlineCheckbox".$registros["mid"]."' value='".$registros["mid"]."'>
+                                    </td>
+                                ";
+                }
+            }
+            
+            
+            $i++;
+        }       
+        return $listaMarca;
+    }
+
     public function selectMarcaModelo(){
         $cona = new Conexao();
         $con=$cona->abreConexao();
@@ -148,22 +222,54 @@ class CarroDAO{
         return $listaCaracteristicas;
     }
 
-    public function UpdateContasReceber(ContasReceber $carro){
-        global $con;
-        $SQL = $con->prepare("UPDATE contasreceber SET documento_contasreceber = ?, valor_contasreceber = ?, cliente_contasreceber = ?, status_contasreceber = ?,  vencimento_contasreceber = ? WHERE id_contasreceber = ?");
-        $SQL->bind_param("sdissi", $P1, $P2, $P3, $P4, $P5, $P6);
+    public function selectCaracteristicasUpdate($idVeiculo){
+        $cona = new Conexao();
+        $con=$cona->abreConexao();
+        $selectCaracteristicasCarro=$con->query("SELECT * FROM caracteristicas_carro WHERE fk_carro='$idVeiculo'");
+        while($res = $selectCaracteristicasCarro->fetch_array()){
+            $listaCaracteristicasCarro[]=$res["fk_caracteristica"];
+        }
+        $SQL=$con->query("SELECT * FROM caracteristicas");
+        while($registros = $SQL->fetch_array()){
+            if (in_array($registros["id"], $listaCaracteristicasCarro)) {
+               $listaCaracteristicas[]="<option selected='' value='".$registros["id"]."'>".$registros["nome"]."</option>";
+            }else{
+                $listaCaracteristicas[]="<option value='".$registros["id"]."'>".$registros["nome"]."</option>";
+            }
+        }
+        return $listaCaracteristicas;
+    }
 
-        $P1 = $carro->getDocumento_contasreceber();
-        $P2 = $carro->getValor_contasreceber();
-        $P3 = $carro->getCliente_contasreceber();
-        $P4 = $carro->getStatus_contasreceber();
-        $P5 = $carro->getVencimento_contasreceber();
-        $P6 = $carro->getId_contasreceber();
+    public function deleteCaracteristicasVeiculo($idVeiculo){
+        try {
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            $sqlDelete=$con->query("DELETE FROM caracteristicas_carro WHERE fk_carro='$idVeiculo'");
+        } catch (Exception $e) {
+            echo $e;
+        }
+    }
 
-        $SQL->execute();
+    public function UpdateVeiculo($idVeiculo,$chassi,$modelo,$ano,$placa,$caracteristicas){
+        try{
+            $cona = new Conexao();
+            $con=$cona->abreConexao();
+            $SQL=$con->query("SELECT * FROM carro");
+            $SQL = $con->prepare("UPDATE carro SET nmr_chassi = '$chassi', fk_modelo = '$modelo', ano = '$ano', placa = '$placa' WHERE id = $idVeiculo");
+            $SQL->execute();
 
-        if($SQL->affected_rows > 0)
-            return true;
+           $sqlDelete=$con->query("DELETE FROM caracteristicas_carro WHERE fk_carro='$idVeiculo'");
+            
+            foreach ($caracteristicas as $carac) {
+                $sqlCaracteristicas="INSERT INTO caracteristicas_carro VALUES ($carac,$idVeiculo)";
+                $con->query($sqlCaracteristicas);
+            } 
+            echo "sucesso";
+        }catch(Exception $e){
+            echo json_encode(array('response' => 'ocorreu algum erro ao inserir :/...'));
+            return false;
+        }
+        
     }
 }
 ?>

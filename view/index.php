@@ -59,7 +59,7 @@
 													<td>".$carros->getAno()."</td>
 													<td>".$carros->getPlaca()."</td>
 													<td>".$carros->getCaracteristicas()."</td>
-													<td><button class='btn btn-warning'>Editar</button></td>
+													<td><a name='idEvento' href=\"edit_veiculo.php?idVeiculo=".$carros->getId()."\" type='button' class='btn btn-warning'>Editar</a></td>
 													<td><a type='button' class='btn btn-danger' onclick='excluirVeiculo(".$carros->getId().")'>Excluir</a></td>
 												</tr>
 											";
